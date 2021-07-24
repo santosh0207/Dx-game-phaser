@@ -26,7 +26,7 @@ export default class GameState extends Phaser.State {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);// for starting the physics system
         this.game.physics.arcade.checkCollision.down = false;// to avoid bound in down side
         
-        this.tilesDiscription = gridDiscription(3,3);// provide number of rows and cols, default its 8x4
+        this.tilesDiscription = gridDiscription();// provide number of rows and cols, default its 8x4
 
         // provide arguments for number of advantages and disadvantages you want in game, By default its 1
         [this.tilesDiscription.advantage, this.tilesDiscription.disAdvantage ] = assignPowerupGrid();
