@@ -64,7 +64,16 @@ export default class GameState extends Phaser.State {
         if(this.pause.inputEnabled){
             this.game.physics.arcade.collide(this.ball, this.platform);
             this.game.physics.arcade.collide(this.ball, this.tileGroup, this.ballHitTile);
-            this.platform.x = (this.game.input.x)  || this.game.world.width*0.5;
+            if(this.game.input){
+                if(this.game.input.x < this.platform.width*0.5)
+                    this.platform.x =  this.platform.width*0.5;
+                else if(this.game.input.x > this.game.world.width- this.platform.width*0.5)
+                    this.platform.x = this.game.world.width- this.platform.width*0.5;
+                else
+                    this.platform.x =this.game.input.x;
+            }else{
+                this.platform.x =  this.game.world.width*0.5;
+            }
         }
         
         for(let i=0;i<this.rewardBalls.length;i++){
