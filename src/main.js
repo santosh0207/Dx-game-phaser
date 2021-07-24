@@ -6,7 +6,7 @@ class Game extends Phaser.Game {
     constructor() {
         let ratio = 1;
 
-        super(1920, 1080, Phaser.CANVAS, "content", null);
+        super(480, 320, Phaser.CANVAS, "content", null);
 
         this.state.add("Boot", BootState, false);
         this.state.add("Preloader", PreloaderState, false);

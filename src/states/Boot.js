@@ -1,6 +1,6 @@
 export default class extends Phaser.State {
     init() {
-        this.stage.backgroundColor = "#000000";
+        this.stage.backgroundColor = "#808080";
         this.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
         this.stage.disableVisibilityChange = false;
         this.scale.pageAlignHorizontally = true;

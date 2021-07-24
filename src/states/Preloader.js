@@ -37,17 +37,21 @@ export default class extends Phaser.State {
     }
     start() {
         // Images
+        this.load.image("ball","assets/ball.png");
+         this.load.image("pause","assets/pause.png");
+        this.load.image("platform","assets/platform.png");
+        this.load.image("tile","assets/tile.png");
       
         // Spritesheet
         this.load.atlasJSONHash("sheet", "assets/sheet.png", "assets/sheet.json");
         this.load.start();
     }
     loadStart() {
-        //console.log("inisde load start");
+        console.log("inisde load start");
     }
 
     //	This callback is sent the following parameters:
-    fileComplete(progress, cacheKey, success, totalLoaded, totalFiles) {
+    fileComplete(progress) {
         if (this.mask) {
             this.mask.destroy();
             this.mask = null;
