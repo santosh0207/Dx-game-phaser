@@ -1,3 +1,5 @@
+import Ball from "../objects/ball";
+import {findIndex,removeNullFromArray, randomNumberGeneration} from '../Utils/utils'
 export default class GameState extends Phaser.State {
 
     ball = null;
@@ -6,9 +8,7 @@ export default class GameState extends Phaser.State {
     speed = 100;
     lives = 3;
 
-    tilesDiscription = {
-       
-    }
+    tilesDiscription = {};
 
     rewardBalls = [];
     unusedRewardBalls = [];
@@ -19,7 +19,7 @@ export default class GameState extends Phaser.State {
         this.game.gameState = this;
         this.game.physics.startSystem(Phaser.Physics.ARCADE);// for starting the physics system
         this.game.physics.arcade.checkCollision.down = false;// to avoid bound in down side
-        this.createTileDiscription();// provide number of rows and cols, default its 8x4
+        this.createTileDiscription(3,3);// provide number of rows and cols, default its 8x4
         this.assignPowerupGrid();// provide arguments advantages and disadvantages you want in game, By default its 1
         this.createPowerupBalls();
         this.createUI();
@@ -56,7 +56,7 @@ export default class GameState extends Phaser.State {
         for(let i=0;i<numAdvantage+numDisAdvantage;i++){
             let num;
             do{
-                num = this.randomNumberGeneration(1,(this.tilesDiscription.rows*this.tilesDiscription.cols));
+                num = randomNumberGeneration(1,(this.tilesDiscription.rows*this.tilesDiscription.cols));
             }while(_arr.indexOf(num)!=-1)
             _arr.push(num)
         }
@@ -65,8 +65,8 @@ export default class GameState extends Phaser.State {
         this.tilesDiscription.disAdvantage = _arr.slice(numAdvantage, _arr.length);
     }
 
-    createUI = ()=>{
-        
+    addBall = () =>{
+
         this.ball = this.game.add.sprite(
             this.world.centerX,
             this.world.centerY,
@@ -80,7 +80,9 @@ export default class GameState extends Phaser.State {
         this.ball.body.bounce.set(1);
         this.ball.checkWorldBounds = true;
         this.ball.events.onOutOfBounds.add(this.checkGameOver, this);
-
+    }
+    addPlatform =()=>{
+        
         this.platform = this.game.add.sprite(
             this.world.centerX,
             this.world.centerY+this.world.height*0.45,
@@ -91,10 +93,11 @@ export default class GameState extends Phaser.State {
         this.platform.scale.setTo(0.1,0.1);
         this.game.physics.enable(this.platform, Phaser.Physics.ARCADE);
         this.platform.body.immovable = true;//makin it movable
-        
-        this.ball.x= this.game.world.centerX;
-        this.ball.y= this.platform.y - this.platform.height*1;
 
+    }
+
+    addHUD = ()=>{
+        
         var style = { font: "20x Arial", fill: "#fff", boundsAlignH: "center", boundsAlignV: "middle" };
         this.livesText = this.game.add.text(0, 0, "Lives left - "+this.lives, style);
         this.livesText.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
@@ -114,8 +117,17 @@ export default class GameState extends Phaser.State {
         this.pause.anchor.setTo(0.5,0.5);
         this.pause.scale.setTo(0.1,0.1);
 
+    }
+    createUI = ()=>{
+        
+        this.addBall();
+        this.addPlatform();
+        this.addHUD();
+
         this.createGameTiles();
 
+        this.ball.x= this.game.world.centerX;
+        this.ball.y= this.platform.y - this.platform.height*1;
         this.ball.body.velocity.set(this.speed, -this.speed);
     }
 
@@ -125,6 +137,7 @@ export default class GameState extends Phaser.State {
         dummyTile.destroy();
         return _width
     }
+
     createGameTiles =() =>{
 
         this.tileGroup = this.game.add.group();
@@ -149,7 +162,7 @@ export default class GameState extends Phaser.State {
                     _tile.tint = '0x00ff00';
                     _tile.type = "advantage";
                     
-                    let _index = this.findIndex(this.unusedRewardBalls,tileCount,"index");
+                    let _index = findIndex(this.unusedRewardBalls,tileCount,"index");
 
                     this.unusedRewardBalls[_index].x = _tile.x;
                     this.unusedRewardBalls[_index].y = _tile.y;
@@ -158,7 +171,7 @@ export default class GameState extends Phaser.State {
                     _tile.tint = '0xff0000';
                     _tile.type = "disadvantage";
                     
-                    let _index = this.findIndex(this.unusedRewardBalls,tileCount,"index");
+                    let _index = findIndex(this.unusedRewardBalls,tileCount,"index");
                     this.unusedRewardBalls[_index].x = _tile.x;
                     this.unusedRewardBalls[_index].y = _tile.y;
                 }
@@ -174,10 +187,10 @@ export default class GameState extends Phaser.State {
     ballHitTile = (ball,tile)=>{
 
         if(tile.type =="advantage" || tile.type =="disadvantage"){
-            var index = this.findIndex(this.unusedRewardBalls,tile.index,"index")
+            var index = findIndex(this.unusedRewardBalls,tile.index,"index")
             this.rewardBalls[index]=this.unusedRewardBalls[index];
             this.unusedRewardBalls[index] = null;
-            this.unusedRewardBalls = this.removeNullFromArray(this.unusedRewardBalls);
+            this.unusedRewardBalls = removeNullFromArray(this.unusedRewardBalls);
             this.rewardBalls[index].visible = true;
             this.rewardBalls[index].body.velocity.set(0, 150);
         }
@@ -233,7 +246,7 @@ export default class GameState extends Phaser.State {
         submitBtn.drawRect(
             this.game.world.centerX,
             this.game.world.centerY,
-            70,
+            80,
             30
         );
         submitBtn.anchor.setTo(0.5,0.5);
@@ -292,7 +305,7 @@ export default class GameState extends Phaser.State {
     }
 
     gameOver =()=>{
-        this.addModel("Game over", ()=>{
+        this.addModel("Game Complete", ()=>{
              location.reload();
        });  
     }
@@ -306,11 +319,11 @@ export default class GameState extends Phaser.State {
         }
         
         //removing element from rewardArray for update to calculate less
-        let index = this.findIndex(this.rewardBalls,_powerUpObj.type,"type");
+        let index = findIndex(this.rewardBalls,_powerUpObj.type,"type");
         this.unusedRewardBalls.push(this.rewardBalls[index]);
         
         this.rewardBalls[index] = null;
-        this.rewardBalls = this.removeNullFromArray(this.rewardBalls);
+        this.rewardBalls = removeNullFromArray(this.rewardBalls);
 
         _powerUpObj.kill();
     }
@@ -383,23 +396,4 @@ export default class GameState extends Phaser.State {
         return _obj;
     }
 
-    findIndex =(arr, value, prop)=>{
-        return arr.map(function(e) { 
-            return e[prop];
-         }).indexOf(value);
-    }
-
-    removeNullFromArray =(array)=> {
-        return array.filter(function (el) {
-            return el != null;
-          });
-    }
-
-    removeDuplicates =(array)=>{
-        return [...new Set(array)]
-    }
-
-    randomNumberGeneration  = (min, max)=>{
-        return Math.floor((Math.random() * max) + min);
-    }
 }
